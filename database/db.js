@@ -3,8 +3,12 @@ const fs = require('fs');
 const config = require('../config/config');
 const { getCurrentDateTime } = require('../utils/helpers');
 
-// Create a connection pool
+// Create a connection pool with robust cloud timeouts and connection caps
 const pool = mysql.createPool({
+    connectionLimit: 15,
+    queueLimit: 0,
+    acquireTimeout: 10000,
+    connectTimeout: 10000,
     host: config.database.host,
     user: config.database.user,
     password: config.database.password,

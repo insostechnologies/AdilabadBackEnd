@@ -6,6 +6,16 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const config = require('./config/config');
 const fs = require('fs');
+const { authLimiter, apiLimiter } = require('./middleware/rateLimiter');
+
+// Process exception safety handlers
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Promise Rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
 
 // Ensure the uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -36,6 +46,11 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Apply rate limiters
+app.use('/api', apiLimiter);
+app.use('/api/user/login', authLimiter);
+app.use('/api/admin/login', authLimiter);
 
 // emojies validation
 app.use((req, res, next) => {
@@ -74,10 +89,13 @@ app.get('/', (req, res) => {
     });
 });
 
-// Error handling middleware
+// Structured JSON error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+    console.error('Express Error Handler:', err.stack || err);
+    res.status(500).json({
+        status: false,
+        message: process.env.ENV === 'prod' ? 'Internal Server Error' : (err.message || 'Something broke!')
+    });
 });
 
 // Server start
