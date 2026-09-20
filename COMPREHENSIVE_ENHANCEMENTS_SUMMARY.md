@@ -1,6 +1,6 @@
 # Comprehensive Enhancements Summary: Adilabad Application
 
-This document provides a master catalog of all technical, architectural, backend, frontend, database, operational, and CI/CD enhancements completed for the **Adilabad Application** (React 18 SPA + Node.js Express API + MySQL 100GB+ Database + Media Storage).
+This document provides a master catalog of all technical, architectural, backend, frontend, database, operational, UI integration, and CI/CD enhancements completed for the **Adilabad Application** (React 18 SPA + Node.js Express API + MySQL 100GB+ Database + Media Storage).
 
 ---
 
@@ -50,7 +50,7 @@ The application infrastructure has been modernized for **100% zero-cost cloud op
 
 ---
 
-## 2. FRONTEND ENHANCEMENTS (`AdilabadFrontEnd`)
+## 2. FRONTEND ENHANCEMENTS & DIRECT UI INTEGRATIONS (`AdilabadFrontEnd`)
 
 ### A. Resiliency & Environment Configuration
 - **Dynamic API Environment Resolver** (`src/config.js`):
@@ -73,7 +73,13 @@ The application infrastructure has been modernized for **100% zero-cost cloud op
 4. 🔗 **`ShareMerchantButton`**: Uses native device share sheet (`navigator.share`) with instant Clipboard copy fallback.
 5. 🛡️ **`VerifiedMerchantBadge`**: Displays "Verified Business" partner checkmark badge and dynamic star rating (`★ 4.5`).
 
-### D. CI/CD Pipeline
+### D. Direct Page & Component UI Integrations
+1. **Store Catalog Cards** (`src/frontend/components/StoreViewCard/StoreViewCard.jsx`):
+   - Embedded interactive quick-action bar with WhatsApp Chat, Google Maps Directions, and Native Share buttons directly into store list items with event click isolation (`e.stopPropagation()`).
+2. **Primary Store Details View** (`src/frontend/pages/StoreDetail/StoreDetail.jsx`):
+   - Embedded full hero action bar under the store header displaying Verified Partner badge, Call Now button with Open/Closed operating hours badge, WhatsApp chat, Maps directions, and Share button.
+
+### E. CI/CD Pipeline
 - **GitHub Actions CI/CD** (`.github/workflows/ci-cd.yml`):
   - Automated React production build verification (`npm run build`) and Web App Manifest assertion checks on every push/PR.
 
@@ -96,5 +102,5 @@ All operational, architectural, and maintenance guides have been committed to th
 
 All work has been committed and pushed to remote GitHub repositories on the `improvements` branch:
 
-- **Backend Repository**: `https://github.com/insostechnologies/AdilabadBackEnd` (Branch: `improvements`, Latest Commit: `c15e85f`)
-- **Frontend Repository**: `https://github.com/insostechnologies/AdilabadFrontEnd` (Branch: `improvements`, Latest Commit: `231035b`)
+- **Backend Repository**: `https://github.com/insostechnologies/AdilabadBackEnd` (Branch: `improvements`, Latest Commit: `3562481`)
+- **Frontend Repository**: `https://github.com/insostechnologies/AdilabadFrontEnd` (Branch: `improvements`, Latest Commit: `27d94b0`)
