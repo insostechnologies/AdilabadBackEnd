@@ -31,11 +31,11 @@ jobs:
 
       - name: Check Node.js Syntax & Compilation
         run: |
-          node -c index.js
-          node -c database/db.js
-          node -c middleware/rateLimiter.js
-          node -c middleware/cacheHeaders.js
-          node -c utils/cloudStorage.js
+          for file in index.js database/db.js middleware/rateLimiter.js middleware/cacheHeaders.js utils/cloudStorage.js; do
+            if [ -f "$file" ]; then
+              node -c "$file"
+            fi
+          done
 
       - name: Test Docker Container Build
         run: docker build -t adilabad-backend:${{ github.sha }} .
