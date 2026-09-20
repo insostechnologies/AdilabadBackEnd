@@ -16,7 +16,7 @@ sequenceDiagram
     participant SMS as Fast2SMS Gateway
     participant MySQL as MySQL Database (Oracle VM)
 
-    Customer->>React: Enters Phone Number & Clicks "Send OTP"
+    Customer->>React: Enters Phone Number & Clicks Send OTP
     React->>Express: POST /api/user/send-otp { phone: "9876543210" }
     Note over Express: Rate limiter checks request threshold (max 5/10min)
     Express->>SMS: Triggers SMS API with generated 6-digit OTP
@@ -25,7 +25,7 @@ sequenceDiagram
     React->>Express: POST /api/user/verify-otp { phone, otp, password }
     Express->>MySQL: SELECT * FROM users WHERE phone = ?
     Express->>Express: Verifies Bcrypt hash / OTP token
-    Express->>Express: Generates JWT Token (signed with JWT_KEY_SECRET)
+    Express->>Express: Generates JWT Token (signed with secret)
     Express-->>React: HTTP 200 { status: true, token: "eyJhbGci...", user: {...} }
     React->>React: Saves JWT to localStorage & sets Auth Context
     React-->>Customer: Redirects to Customer Home Marketplace
@@ -50,8 +50,8 @@ sequenceDiagram
     Note over Express: Emoji guard sanitizes string inputs
     Express->>Express: Sharp converts logo to WebP (80% quality)
     Express->>Storage: Streams WebP buffer to S3 Bucket
-    Storage-->>Express: Returns Public CDN URL (https://objectstorage.../logo.webp)
-    Express->>MySQL: INSERT INTO store (user_id, store_name, logo_url, status='pending')
+    Storage-->>Express: Returns Public CDN URL
+    Express->>MySQL: INSERT INTO store (user_id, store_name, status)
     Express-->>React: HTTP 200 { status: true, message: "Store submitted for review" }
     
     Admin->>React: Opens Admin Dashboard -> Pending Stores
@@ -59,7 +59,7 @@ sequenceDiagram
     Express->>MySQL: SELECT * FROM store WHERE status = 'pending'
     MySQL-->>Express: Returns pending stores list
     Express-->>React: Renders Material React Table
-    Admin->>React: Clicks "Approve Store"
+    Admin->>React: Clicks Approve Store
     React->>Express: PUT /api/admin/store/approve { store_id: 123 }
     Express->>MySQL: UPDATE store SET status = 'active' WHERE id = 123
     Express-->>React: HTTP 200 { status: true, message: "Store approved" }
@@ -79,13 +79,13 @@ sequenceDiagram
     participant Storage as Cloud Storage (Oracle/R2)
     participant MySQL as MySQL Database
 
-    Merchant->>React: Clicks "Add Product" (Enters Title, Price, Category, Uploads Photo)
+    Merchant->>React: Clicks Add Product (Enters Details & Photo)
     React->>Express: POST /api/product/add (Multipart Form)
-    Express->>Sharp: Passes raw file buffer (e.g. 4.5 MB JPEG)
+    Express->>Sharp: Passes raw file buffer
     Sharp->>Sharp: Resizes to max 1200px width & compresses to WebP
-    Sharp-->>Express: Returns 180 KB WebP buffer
-    Express->>Storage: Stream WebP buffer to Bucket (uploads/products/xyz.webp)
-    Storage-->>Express: Returns Public URL (https://.../xyz.webp)
+    Sharp-->>Express: Returns WebP buffer
+    Express->>Storage: Stream WebP buffer to Bucket
+    Storage-->>Express: Returns Public Image URL
     Express->>MySQL: INSERT INTO product (store_id, category_id, product_name, price, image_url)
     MySQL-->>Express: Returns inserted product ID
     Express-->>React: HTTP 200 { status: true, product: {...} }
@@ -105,21 +105,21 @@ sequenceDiagram
     participant CDN as Vercel / Cloudflare CDN
     participant MySQL as MySQL Database
 
-    Customer->>CDN: Navigates to https://www.adilabadapp.com
-    CDN-->>Customer: Serves static React HTML/JS bundle (<15ms)
+    Customer->>CDN: Navigates to adilabadapp.com
+    CDN-->>Customer: Serves static React HTML/JS bundle
     React->>Express: GET /api/banner/active & GET /api/category/list
-    Express->>MySQL: SELECT * FROM banner WHERE status = 1; SELECT * FROM category;
+    Express->>MySQL: SELECT * FROM banner, SELECT * FROM category
     MySQL-->>Express: Active banners & category tree
     Express-->>React: HTTP 200 JSON payload
     React-->>Customer: Displays Hero Banner Carousel & Category Grid
     
-    Customer->>React: Types "Cotton Sarees" in Search Bar
-    React->>Express: GET /api/keywords/search?q=Cotton+Sarees
-    Express->>MySQL: SELECT p.*, s.store_name FROM product p JOIN store s ON p.store_id = s.id WHERE MATCH(...)
-    Note over MySQL: Uses idx_product_store_id index for sub-millisecond query
+    Customer->>React: Types Sarees in Search Bar
+    React->>Express: GET /api/keywords/search?q=Sarees
+    Express->>MySQL: SELECT * FROM product JOIN store WHERE MATCH(...)
+    Note over MySQL: Uses idx_product_store_id index for fast query
     MySQL-->>Express: Matching product rows
     Express-->>React: HTTP 200 { status: true, products: [...] }
-    React-->>Customer: Displays Product Grid with Price, Store Badges, & WebP Images
+    React-->>Customer: Displays Product Grid with Price & WebP Images
 ```
 
 ---
