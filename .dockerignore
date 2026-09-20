@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+backups/
+uploads/*
+!uploads/.gitkeep
+Dockerfile
+.dockerignore
+MIGRATION.md
