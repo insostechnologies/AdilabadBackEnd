@@ -1,17 +1,20 @@
 # Comprehensive Deep-Dive Architecture & Implementation Blueprint
 **Application**: Adilabad Application (React SPA + Node.js Express API + 100GB MySQL DB + Heavy Media Layer)  
-**Target Budget**: **$0 to $1.35/month**  
-**Target Architecture**: Vercel (Frontend) + Render (Backend API) + Oracle Cloud Always Free (100GB MySQL DB) + Cloudflare R2 / Oracle Object Storage
+**Target Budget**: **$0 to $3.57/month**  
+**Codebase Hardening & Fix Status**: 100% **COMPLETED & IMPLEMENTED** in Branch `improvements`
 
 ---
 
-## Table of Contents
-1. [Module 1: End-to-End Architecture & Network Traffic Flow](#module-1-end-to-end-architecture--network-traffic-flow)
-2. [Module 2: 100 GB MySQL Database Deep-Dive (Oracle Cloud VM)](#module-2-100-gb-mysql-database-deep-dive-oracle-cloud-vm)
-3. [Module 3: Heavy Media Optimization & CDN Pipeline](#module-3-heavy-media-optimization--cdn-pipeline)
-4. [Module 4: Codebase Refactoring Specifications](#module-4-codebase-refactoring-specifications)
-5. [Module 5: Step-by-Step Deployment Runbook](#module-5-step-by-step-deployment-runbook)
-6. [Module 6: Operations, Backups & Disaster Recovery](#module-6-operations-backups--disaster-recovery)
+## 🟢 Implementation Completion Status Matrix
+
+| Module | Architectural Component | Code / Infrastructure Task | Completion Status |
+| :-: | :--- | :--- | :---: |
+| **1** | **Networking & CORS** | Dynamic PORT & production origin CORS array | ✅ **COMPLETED** |
+| **2** | **100GB+ Database Sizing**| 16GB InnoDB buffer pool `my.cnf` & index keys script | ✅ **COMPLETED** |
+| **3** | **Heavy Media Layer** | Sharp WebP compression & S3/R2 Cloud Storage helper | ✅ **COMPLETED** |
+| **4** | **Security & Auth** | Rate limiting middleware (`authLimiter`) on login/OTP | ✅ **COMPLETED** |
+| **5** | **Error Resilience** | Process exception safety & JSON error responses | ✅ **COMPLETED** |
+| **6** | **Frontend SPA Refresh**| React ErrorBoundary & `vercel.json` 404 rewrite rules | ✅ **COMPLETED** |
 
 ---
 
@@ -102,7 +105,6 @@ table_open_cache        = 4000
 open_files_limit        = 65535
 
 # Memory Optimization for 24GB RAM Node
-# Allocate 16GB RAM specifically to InnoDB Buffer Pool to cache 100GB indexes/hot rows
 innodb_buffer_pool_size         = 16G
 innodb_buffer_pool_instances    = 8
 innodb_log_file_size            = 2G
@@ -116,65 +118,4 @@ innodb_io_capacity              = 2000
 innodb_io_capacity_max          = 4000
 innodb_read_io_threads          = 8
 innodb_write_io_threads         = 8
-
-# Query & Sort Buffers
-tmp_table_size                  = 128M
-max_heap_table_size             = 128M
-sort_buffer_size                = 2M
-read_buffer_size                = 2M
-join_buffer_size                = 4M
-
-# Character Set
-character-set-server            = utf8mb4
-collation-server                = utf8mb4_unicode_ci
-```
-
----
-
-## Module 3: Heavy Media Optimization & CDN Pipeline
-
-If raw images are uploaded directly, a 100GB media library will incur high bandwidth costs on AWS/GCP. Using **Cloudflare R2** or **Oracle Object Storage** and **Sharp WebP Compression** slashes storage needs by 80% and eliminates bandwidth bills.
-
-### 1. Cost Comparison Architecture
-
-```
-Raw Camera Upload (5.0 MB JPEG)
-            │
-            ▼
-[Node.js Express + Sharp Pipeline]
-            │
-            ├────► Converts to WebP format (80% quality)
-            ├────► Resizes to max 1200px width
-            │
-            ▼
-Compressed Upload (220 KB WebP) ──► Saved to Cloudflare R2 / Oracle Storage
-                                    (Zero Bandwidth Egress Fees!)
-```
-
----
-
-## Module 4: Operations, Backups & Disaster Recovery
-
-### 1. Automated Rolling Database Backups
-
-On Oracle VM, create backup script `/home/ubuntu/scripts/db_backup.sh`:
-```bash
-#!/bin/bash
-BACKUP_DIR="/home/ubuntu/backups"
-DATE=$(date +"%Y-%m-%d_%H%M%S")
-mkdir -p $BACKUP_DIR
-
-mysqldump -u adilabaduser -p'ProductionPass123!' --single-transaction --quick adilabadDb | gzip > $BACKUP_DIR/adilabadDb_$DATE.sql.gz
-
-find $BACKUP_DIR -type f -name "*.sql.gz" -mtime +7 -delete
-```
-
-Add execute permissions & crontab entry (Runs every night at 2:00 AM):
-```bash
-chmod +x /home/ubuntu/scripts/db_backup.sh
-crontab -e
-```
-Add line:
-```cron
-0 2 * * * /home/ubuntu/scripts/db_backup.sh > /dev/null 2>&1
 ```
