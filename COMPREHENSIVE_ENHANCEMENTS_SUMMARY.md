@@ -102,5 +102,5 @@ All operational, architectural, and maintenance guides have been committed to th
 
 All work has been committed and pushed to remote GitHub repositories on the `improvements` branch:
 
-- **Backend Repository**: `https://github.com/insostechnologies/AdilabadBackEnd` (Branch: `improvements`, Latest Commit: `4ff4bdb`)
-- **Frontend Repository**: `https://github.com/insostechnologies/AdilabadFrontEnd` (Branch: `improvements`, Latest Commit: `7b3b483`)
+- **Backend Repository**: `https://github.com/insostechnologies/AdilabadBackEnd` (Branch: `improvements`, Latest Commit: `aeb9758`)
+- **Frontend Repository**: `https://github.com/insostechnologies/AdilabadFrontEnd` (Branch: `improvements`, Latest Commit: `2e4c604`)
